@@ -45,7 +45,7 @@ class CartProduct(models.Model):
     final_price = models.DecimalField(max_digits=15, decimal_places=2, verbose_name="Total Price")
 
     def __str__(self):
-        return f"Cart Product {self.content_object.name}"
+        return f"Cart Product {self.product.title}"
 
 
 class Cart(models.Model):
@@ -65,23 +65,23 @@ class Customer(models.Model):
     phone = models.CharField(max_length=20, verbose_name="User phone number")
 
     def __str__(self):
-        return "Customer:", self.user.first_name, self.user.last_name
+        return f"Customer: {self.user.username}"
 
 
 class WishlistProduct(models.Model):
 
     user = models.ForeignKey(Customer, verbose_name="Customer", on_delete=models.CASCADE)
-    cart = models.ForeignKey("Wishlist", verbose_name="Cart", on_delete=models.CASCADE)
+    wishlist = models.ForeignKey("Wishlist", verbose_name="Wishlist", on_delete=models.CASCADE, related_name="related_wishlist_product")
     product = models.ForeignKey(Product, verbose_name="Wished Product", on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"User {self.user.username}, wish {self.content_object.title}"
+        return f"User {self.user.user.username}, wish {self.product.title}"
 
 
 class Wishlist(models.Model):
 
     owner = models.ForeignKey("Customer", verbose_name="Wishlist Owner", on_delete=models.CASCADE)
-    products = models.ManyToManyField(WishlistProduct, blank=True)
+    products = models.ManyToManyField(WishlistProduct, blank=True, related_name="related_wishlist")
 
     def __str__(self):
         return str(self.id)
