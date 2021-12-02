@@ -11,3 +11,4 @@ urlpatterns = [
     path("logout", logout_user, name="logout_page"),
     path("all_products", AllProducts.as_view(), name="all_products_page")
 ]
+

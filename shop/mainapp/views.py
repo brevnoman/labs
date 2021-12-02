@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.shortcuts import render, redirect
 from django.views.generic import View, DetailView
 from mainapp.models import Product, Category
-from mainapp.mixins import CategoryContextMixin
+
 
 # def all_product(request):
 #     products_qs = Product.objects.all()

@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 User = get_user_model()
 
+
 # Create your models here.
 # product
 # category
