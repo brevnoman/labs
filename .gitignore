@@ -1,0 +1,4 @@
+.idea
+.gitignore
+/venv
+/.idea/django_shop_project.iml
