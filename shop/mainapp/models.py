@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import User
+
 
 User = get_user_model()
 
@@ -56,13 +56,26 @@ class CartProduct(models.Model):
     product: Product = models.ForeignKey(Product,
                                          verbose_name="Product",
                                          on_delete=models.CASCADE)
-    qty = models.PositiveIntegerField(default=1)
+    qty: int = models.PositiveIntegerField(default=0)
     final_price = models.DecimalField(max_digits=15,
                                       decimal_places=2,
-                                      verbose_name="Total Price")
+                                      verbose_name="Total Price", blank=True, null=True)
 
     def __str__(self):
         return f"Cart Product {self.product.title}"
+
+    def save(self, remove=False, *args, **kwargs):
+        if remove:
+            self.qty -= 1
+        else:
+            self.qty += 1
+        if self.qty <= 0:
+            return self.delete()
+        self.final_price = self.qty * self.product.price
+        super().save(*args, **kwargs)
+        cart = Cart.objects.get(pk=self.cart.pk)
+        cart.total_products = 0
+        cart.save()
 
 
 class Cart(models.Model):
@@ -76,12 +89,24 @@ class Cart(models.Model):
     total_products = models.PositiveIntegerField(default=0)
     final_price = models.DecimalField(max_digits=15,
                                       decimal_places=2,
-                                      verbose_name="Total Price")
+                                      verbose_name="Total Price", null=True)
     in_order = models.BooleanField(default=False)
     for_anonymous_user = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.id)
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            all_products = self.products.all()
+            products_count = 0
+            products_price = 0
+            for product in all_products:
+                products_count += product.qty
+                products_price += product.final_price
+            self.total_products = products_count
+            self.final_price = products_price
+        super().save(*args, **kwargs)
 
 
 class Customer(models.Model):
@@ -90,7 +115,7 @@ class Customer(models.Model):
                              verbose_name="User",
                              on_delete=models.CASCADE)
     phone = models.CharField(max_length=20,
-                             verbose_name="User phone number")
+                             verbose_name="User phone number", blank=True)
 
     def __str__(self):
         return f"Customer: {self.user.username}"

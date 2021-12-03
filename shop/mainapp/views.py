@@ -1,8 +1,8 @@
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.views.generic import View, DetailView
-from mainapp.models import Product, Category
+from mainapp.models import Product, Category, Customer, Cart, CartProduct
 
 
 # def all_product(request):
@@ -11,11 +11,38 @@ from mainapp.models import Product, Category
 class MainView(View):
     categories = Category.objects.all()
 
+    # def dispatch(self, request, *args, **kwargs):
+    #     if request.user.is_authenticated:
+    #         pass
+
+    def get_cart(self, request):
+        if request.user.is_authenticated:
+            customer = self.get_customer(request)
+            cart, created = Cart.objects.get_or_create(owner=customer, in_order=False)
+            if created:
+                cart.save()
+            return cart
+        return {"owner": None,
+                "products": None,
+                "total_products": 0,
+                "final_price": None,
+                "in_order": None,
+                "for_anonymous_user": None,
+                }
+
+    def get_customer(self, request):
+        if request.user.is_authenticated:
+            customer, created = Customer.objects.get_or_create(user=request.user)
+            if created:
+                customer.save()
+            return customer
+
 
 class AllProducts(MainView):
     def get(self, request, *args, **kwargs):
+        cart = self.get_cart(request)
         products_qs = Product.objects.all()
-        return render(request, "all_products.html", {"products": products_qs, "categories": self.categories})
+        return render(request, "all_products.html", {"cart": cart, "products": products_qs, "categories": self.categories})
 
 
 # def products(request, slug):
@@ -26,7 +53,8 @@ class Products(MainView):
 
     def get(self, request, slug, *args, **kwargs):
         products_qs = Product.objects.get(slug=slug)
-        return render(request, "product_detail.html", {"product": products_qs, "categories": self.categories})
+        cart = self.get_cart(request)
+        return render(request, "product_detail.html", {"cart": cart, "product": products_qs, "categories": self.categories})
 
 
 # def main_page(request):
@@ -37,8 +65,8 @@ class Products(MainView):
 class MainPage(MainView):
     def get(self, request, *args, **kwargs):
         products_qs = Product.objects.all()[:8]
-        categories_qs = Category.objects.all()
-        return render(request, "main_page.html", context={"products": products_qs, "categories": self.categories})
+        cart = self.get_cart(request)
+        return render(request, "main_page.html", context={"cart": cart ,"products": products_qs, "categories": self.categories})
 
 
 # def register_page(request):
@@ -60,7 +88,8 @@ class RegisterPage(MainView):
         if request.user.is_authenticated:
             return redirect("/")
         form = UserCreationForm()
-        return render(request, "register.html", {"form": form, "categories": self.categories})
+        cart = self.get_cart(request)
+        return render(request, "register.html", {"cart": cart, "form": form, "categories": self.categories})
 
     def post(self, request, *args, **kwargs):
         form = UserCreationForm(request.POST)
@@ -68,8 +97,7 @@ class RegisterPage(MainView):
             user = form.save()
             login(request, user)
             return redirect("/")
-        return render(request, "register.html", {"form": form, "categories": self.categories})
-
+        return redirect("register_page")
 
 # def login_page(request):
 #     if request.user.is_authenticated:
@@ -89,10 +117,11 @@ class RegisterPage(MainView):
 
 class LoginPage(MainView):
     def get(self, request):
+        cart = self.get_cart(request)
         if request.user.is_authenticated:
             return redirect("/")
         form = AuthenticationForm
-        return render(request, "login.html", {"form": form, "categories": self.categories})
+        return render(request, "login.html", {"cart": cart, "form": form, "categories": self.categories})
     def post(self, request):
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
@@ -112,9 +141,10 @@ class LoginPage(MainView):
 
 class CategoryProducts(MainView):
     def get(self, request, slug, *args, **kwargs):
+        cart = self.get_cart(request)
         category = Category.objects.get(slug=slug)
         category_qs = Product.objects.filter(category=category)
-        return render(request, "category_products.html", {"products": category_qs, "slug": slug, "categories": self.categories})
+        return render(request, "category_products.html", {"cart": cart, "products": category_qs, "slug": slug, "categories": self.categories})
 
 
 def logout_user(request):
@@ -124,3 +154,41 @@ def logout_user(request):
 
 # class AllProducts(MainView):
 #     def get(self, request, *args, **kwargs):
+
+
+class CartView(MainView):
+
+    def get(self, request, *args, **kwargs):
+        cart = self.get_cart(request)
+        context = {
+            "cart": cart,
+            "categories": self.categories
+        }
+        return render(request, "cart.html", context=context)
+
+
+class AddToCartView(MainView):
+
+    def get(self,request, slug, *args, **kwargs):
+        cart = self.get_cart(request)
+        customer = self.get_customer(request)
+        product = Product.objects.get(slug=slug)
+        cart_product, created = CartProduct.objects.get_or_create(
+            user=customer,
+            cart=cart,
+            product=product,
+        )
+        if created:
+            cart.products.add(cart_product)
+        else:
+            cart_product.save()
+        return HttpResponseRedirect('/cart/')
+
+
+class RemoveCartProduct(MainView):
+    def get(self, *args, **kwargs):
+        cart, slug = kwargs.get("cart"), kwargs.get("slug")
+        product = Product.objects.get(slug=slug)
+        cart_product = CartProduct.objects.get(product=product, cart=cart)
+        cart_product.save(remove=True)
+        return redirect("cart")

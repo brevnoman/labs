@@ -20,6 +20,7 @@
             </br>
             {% endfor %}
         </p>
+        <a href="{% url 'add_to_cart_page' slug=product.slug %}" class="btn btn-danger" role="button">Add to cart</a>
     </div>
         <div class="col-md-6 offset-md-3">
             <table class="table">

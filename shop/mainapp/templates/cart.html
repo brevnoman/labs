@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}
+Cart
+{% endblock %}
+
+{% block content %}
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Product</th>
+      <th scope="col">Image</th>
+      <th scope="col">Cost</th>
+      <th scope="col">qnt</th>
+        <th scope="col">Final Price</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+{% for i in cart.products.all %}
+  <tbody>
+    <tr>
+      <th scope="row">{{ i.product.title }}</th>
+      <td class="w-25">
+        {% if i.product.image %}
+            <img class="img-fluid" src="{{ i.product.image.url }}" width="100%">
+        {% else %}
+            <img class="img-fluid" src="https://zenit.by/images/no_photo.png" width="100%">
+        {% endif %}</td>
+        </td>
+        <td class="w-25">{{ i.product.price }}</td>
+      <td class="w-25">{{ i.qty }}</td>
+      <td class="w-25">{{ i.final_price }}</td>
+      <td class="w-25"><a href="{% url 'remove_cart_product' cart=i.cart slug=i.product.slug %}" class="btn btn-danger">-</a></td>
+      <td class="w-25"><a href="{% url 'add_to_cart_page' slug=i.product.slug %}" class="btn btn-danger">+</a></td>
+    </tr>
+{% endfor %}
+</table>
+{% endblock %}
+<!--<img class="img-fluid" src="-->
+<!--                            {% if product.image %}-->
+<!--                                {{ product.image.url }}-->
+<!--                            {% else %}-->
+<!--                                https://zenit.by/images/no_photo.png-->
+<!--                            {% endif %}-->
+<!--                            ">-->
