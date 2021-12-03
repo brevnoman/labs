@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
-
 User = get_user_model()
 
 
@@ -15,7 +14,6 @@ User = get_user_model()
 
 
 class Category(models.Model):
-
     name = models.CharField(max_length=255,
                             verbose_name="Category name")
     slug = models.SlugField(unique=True)
@@ -25,7 +23,6 @@ class Category(models.Model):
 
 
 class Product(models.Model):
-
     category = models.ManyToManyField(Category,
                                       verbose_name="Category",
                                       related_name="related_product")
@@ -45,7 +42,6 @@ class Product(models.Model):
 
 
 class CartProduct(models.Model):
-
     user = models.ForeignKey("Customer",
                              verbose_name="Customer",
                              on_delete=models.CASCADE)
@@ -79,7 +75,6 @@ class CartProduct(models.Model):
 
 
 class Cart(models.Model):
-
     owner = models.ForeignKey("Customer",
                               verbose_name="Cart Owner",
                               on_delete=models.CASCADE)
@@ -110,7 +105,6 @@ class Cart(models.Model):
 
 
 class Customer(models.Model):
-
     user = models.ForeignKey(User,
                              verbose_name="User",
                              on_delete=models.CASCADE)
@@ -122,7 +116,6 @@ class Customer(models.Model):
 
 
 class WishlistProduct(models.Model):
-
     user: Customer = models.ForeignKey(Customer,
                                        verbose_name="Customer",
                                        on_delete=models.CASCADE)
@@ -138,7 +131,6 @@ class WishlistProduct(models.Model):
 
 
 class Wishlist(models.Model):
-
     owner = models.ForeignKey("Customer",
                               verbose_name="Wishlist Owner",
                               on_delete=models.CASCADE)

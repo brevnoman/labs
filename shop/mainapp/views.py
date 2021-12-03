@@ -42,7 +42,8 @@ class AllProducts(MainView):
     def get(self, request, *args, **kwargs):
         cart = self.get_cart(request)
         products_qs = Product.objects.all()
-        return render(request, "all_products.html", {"cart": cart, "products": products_qs, "categories": self.categories})
+        return render(request, "all_products.html",
+                      {"cart": cart, "products": products_qs, "categories": self.categories})
 
 
 # def products(request, slug):
@@ -54,7 +55,8 @@ class Products(MainView):
     def get(self, request, slug, *args, **kwargs):
         products_qs = Product.objects.get(slug=slug)
         cart = self.get_cart(request)
-        return render(request, "product_detail.html", {"cart": cart, "product": products_qs, "categories": self.categories})
+        return render(request, "product_detail.html",
+                      {"cart": cart, "product": products_qs, "categories": self.categories})
 
 
 # def main_page(request):
@@ -66,7 +68,8 @@ class MainPage(MainView):
     def get(self, request, *args, **kwargs):
         products_qs = Product.objects.all()[:8]
         cart = self.get_cart(request)
-        return render(request, "main_page.html", context={"cart": cart ,"products": products_qs, "categories": self.categories})
+        return render(request, "main_page.html",
+                      context={"cart": cart, "products": products_qs, "categories": self.categories})
 
 
 # def register_page(request):
@@ -99,6 +102,7 @@ class RegisterPage(MainView):
             return redirect("/")
         return redirect("register_page")
 
+
 # def login_page(request):
 #     if request.user.is_authenticated:
 #         return redirect("/")
@@ -122,6 +126,7 @@ class LoginPage(MainView):
             return redirect("/")
         form = AuthenticationForm
         return render(request, "login.html", {"cart": cart, "form": form, "categories": self.categories})
+
     def post(self, request):
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
@@ -132,6 +137,7 @@ class LoginPage(MainView):
                 login(request, user)
                 return redirect("/")
         return redirect("login_page")
+
 
 # def category_products(request, slug):
 #     category = Category.objects.get(slug=slug)
@@ -144,7 +150,8 @@ class CategoryProducts(MainView):
         cart = self.get_cart(request)
         category = Category.objects.get(slug=slug)
         category_qs = Product.objects.filter(category=category)
-        return render(request, "category_products.html", {"cart": cart, "products": category_qs, "slug": slug, "categories": self.categories})
+        return render(request, "category_products.html",
+                      {"cart": cart, "products": category_qs, "slug": slug, "categories": self.categories})
 
 
 def logout_user(request):
@@ -169,7 +176,7 @@ class CartView(MainView):
 
 class AddToCartView(MainView):
 
-    def get(self,request, slug, *args, **kwargs):
+    def get(self, request, slug, *args, **kwargs):
         cart = self.get_cart(request)
         customer = self.get_customer(request)
         product = Product.objects.get(slug=slug)
