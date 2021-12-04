@@ -14,14 +14,12 @@ class MainView(View):
             cart, created = Cart.objects.get_or_create(owner=customer, in_order=False)
             if created:
                 cart.save()
-            return cart
-        return {"owner": None,
-                "products": None,
-                "total_products": 0,
-                "final_price": None,
-                "in_order": None,
-                "for_anonymous_user": None,
-                }
+        else:
+            cart = Cart.objects.create(
+                for_anonymous_user=True
+            )
+        return cart
+
 
     def get_customer(self, request):
         if request.user.is_authenticated:

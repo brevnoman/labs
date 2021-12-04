@@ -65,10 +65,10 @@ class CartProduct(models.Model):
             self.qty -= 1
         else:
             self.qty += 1
-        if self.qty <= 0:
-            return self.delete()
         self.final_price = self.qty * self.product.price
         super().save(*args, **kwargs)
+        if self.qty <= 0:
+            self.delete()
         cart = Cart.objects.get(pk=self.cart.pk)
         cart.total_products = 0
         cart.save()
@@ -76,6 +76,7 @@ class CartProduct(models.Model):
 
 class Cart(models.Model):
     owner = models.ForeignKey("Customer",
+                              null=True,
                               verbose_name="Cart Owner",
                               on_delete=models.CASCADE)
     products = models.ManyToManyField(CartProduct,
