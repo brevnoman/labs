@@ -1,8 +1,12 @@
+from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.views.generic import View
 from mainapp.models import Product, Category, Customer, Cart, CartProduct
+from mainapp.forms import OrderForm
+from mainapp.utils import recalc_cart
+from django.db import transaction
 
 
 class MainView(View):
@@ -18,6 +22,7 @@ class MainView(View):
             cart = Cart.objects.create(
                 for_anonymous_user=True
             )
+        recalc_cart(cart)
         return cart
 
 
@@ -96,9 +101,9 @@ class CategoryProducts(MainView):
     def get(self, request, slug, *args, **kwargs):
         cart = self.get_cart(request)
         category = Category.objects.get(slug=slug)
-        category_qs = Product.objects.filter(category=category)
+        products = Product.objects.filter(category=category)
         return render(request, "category_products.html",
-                      {"cart": cart, "products": category_qs, "slug": slug, "categories": self.categories})
+                      {"cart": cart, "products": products, "slug": slug, "categories": self.categories})
 
 
 def logout_user(request):
@@ -130,6 +135,7 @@ class AddToCartView(MainView):
         )
         if created:
             cart.products.add(cart_product)
+            recalc_cart(cart)
         else:
             cart_product.save()
         return HttpResponseRedirect('/cart/')
@@ -142,3 +148,42 @@ class RemoveCartProduct(MainView):
         cart_product = CartProduct.objects.get(product=product, cart=cart)
         cart_product.save(remove=True)
         return redirect("cart")
+
+
+class CheckoutView(MainView):
+
+    def get(self, request, *args, **kwargs):
+        cart = self.get_cart(request)
+        form = OrderForm()
+        context = {
+            "cart": cart,
+            "categories": self.categories,
+            "form": form
+        }
+        return render(request, "checkout.html", context=context)
+
+
+class MakeOrderView(MainView):
+
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+        form=OrderForm(request.POST or None)
+        if form.is_valid():
+            new_order = form.save(commit=False)
+            new_order.customer = Customer.objects.get(user=request.user)
+            new_order.first_name = form.cleaned_data["first_name"]
+            new_order.last_name = form.cleaned_data['last_name']
+            new_order.phone = form.cleaned_data['phone']
+            new_order.address = form.cleaned_data['address']
+            new_order.buying_delivery = form.cleaned_data["buying_delivery"]
+            new_order.comment = form.cleaned_data['comment']
+            cart = self.get_cart(request)
+            cart.in_order = True
+            new_order.cart = cart
+            new_order.save()
+            recalc_cart(cart)
+            customer = self.get_customer(request)
+            customer.orders.add(new_order)
+            messages.add_message(request, messages.INFO, "Thank you! We will contact you as soon as possibly.")
+            return redirect("main_page")
+        return redirect("checkout")

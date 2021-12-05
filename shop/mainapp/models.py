@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 
 User = get_user_model()
 
@@ -92,17 +93,17 @@ class Cart(models.Model):
     def __str__(self):
         return str(self.id)
 
-    def save(self, *args, **kwargs):
-        if self.pk:
-            all_products = self.products.all()
-            products_count = 0
-            products_price = 0
-            for product in all_products:
-                products_count += product.qty
-                products_price += product.final_price
-            self.total_products = products_count
-            self.final_price = products_price
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     if self.pk:
+    #         all_products = self.products.all()
+    #         products_count = 0
+    #         products_price = 0
+    #         for product in all_products:
+    #             products_count += product.qty
+    #             products_price += product.final_price
+    #         self.total_products = products_count
+    #         self.final_price = products_price
+    #     super().save(*args, **kwargs)
 
 
 class Customer(models.Model):
@@ -111,6 +112,7 @@ class Customer(models.Model):
                              on_delete=models.CASCADE)
     phone = models.CharField(max_length=20,
                              verbose_name="User phone number", blank=True)
+    orders = models.ManyToManyField("Order", verbose_name="Customer Orders", related_name="related_customer")
 
     def __str__(self):
         return f"Customer: {self.user.username}"
@@ -141,3 +143,43 @@ class Wishlist(models.Model):
 
     def __str__(self):
         return str(self.id)
+
+
+class Order(models.Model):
+
+    STATUS_NEW = "new"
+    STATUS_IN_PROGRESS = "in_progress"
+    STATUS_READY = "is_ready"
+    STATUS_COMPLETED = "completed"
+
+    BUYING_TYPE_SELF = "self"
+    BUYING_TYPE_DELIVERY = "delivery"
+
+    STATUS_CHOISES = (
+        (STATUS_NEW, "New Order"),
+        (STATUS_IN_PROGRESS, "Order in progress"),
+        (STATUS_READY, "Order Ready"),
+        (STATUS_COMPLETED, "Order is completed")
+    )
+
+    BUYING_TYPE_CHOISES = (
+        (BUYING_TYPE_SELF, "Self pickup"),
+        (BUYING_TYPE_DELIVERY, "Delivery")
+    )
+
+    customer = models.ForeignKey(Customer, verbose_name="Customer", on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=255, verbose_name="First Name")
+    last_name = models.CharField(max_length=255, verbose_name="Last Name")
+    phone = models.CharField(max_length=28, verbose_name="Phone Number")
+    address = models.CharField(max_length=255, blank=True, null=True, verbose_name="Address")
+    cart = models.ForeignKey(Cart, verbose_name="Cart", on_delete=models.CASCADE, null=True, blank=True)
+    status = models.CharField(max_length=100,
+                              verbose_name="Order Status",
+                              choices=STATUS_CHOISES,
+                              default=STATUS_NEW)
+    buying_delivery = models.CharField(max_length=100,
+                                       choices=BUYING_TYPE_CHOISES,
+                                       default=BUYING_TYPE_SELF,
+                                       verbose_name="Buying delivery type")
+    comment = models.TextField(verbose_name="Order comment", null=True, blank=True)
+    created_at = models.DateTimeField(auto_now=True, verbose_name="Order create time")

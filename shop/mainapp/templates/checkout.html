@@ -1,9 +1,6 @@
-{% extends "base.html" %}
-
-{% block title %}
-Cart
-{% endblock %}
-
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Order{% endblock %}
 {% block content %}
 <table class="table">
   <thead>
@@ -13,11 +10,10 @@ Cart
       <th scope="col">Cost</th>
       <th scope="col">qnt</th>
         <th scope="col">Final Price</th>
-      <th scope="col"></th>
     </tr>
   </thead>
-{% for i in cart.products.all %}
   <tbody>
+{% for i in cart.products.all %}
     <tr>
       <th scope="row">{{ i.product.title }}</th>
       <td class="w-25">
@@ -30,25 +26,22 @@ Cart
         <td class="w-25">{{ i.product.price }}</td>
       <td class="w-25">{{ i.qty }}</td>
       <td class="w-25">{{ i.final_price }}</td>
-      <td class="w-25"><a href="{% url 'remove_cart_product' cart=i.cart slug=i.product.slug %}" class="btn btn-danger">-</a></td>
-      <td class="w-25"><a href="{% url 'add_to_cart_page' slug=i.product.slug %}" class="btn btn-danger">+</a></td>
-    </tr>
+     </tr>
 {% endfor %}
-  <tbody>
     <tr>
       <th scope="row"></th>
       <td class="w-25"></td>
       <td class="w-25"></td>
         <td class="w-25">Total Price:</td>
       <td class="w-25">{{ cart.final_price }}</td>
-      <td class="w-25"><a href="{% url 'checkout' %}" class="btn btn-primary">Make order</a></td>
     </tr>
+</tbody>
 </table>
+    <hr>
+    <h3 class="text-center mt-5 mb-5">Order form</h3>
+    <form action="{% url 'make_order' %}" method="POST">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <input type="submit" class="btn btn-success btn-block btn-lg mt-3 mb-3" value="Make Order">
+    </form>
 {% endblock %}
-<!--<img class="img-fluid" src="-->
-<!--                            {% if product.image %}-->
-<!--                                {{ product.image.url }}-->
-<!--                            {% else %}-->
-<!--                                https://zenit.by/images/no_photo.png-->
-<!--                            {% endif %}-->
-<!--                            ">-->
