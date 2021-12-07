@@ -28,10 +28,26 @@ Cart
         {% endif %}</td>
         </td>
         <td class="w-25">{{ i.product.price }}</td>
-      <td class="w-25">{{ i.qty }}</td>
+      <td class="w-25">
+        <form action="{% url 'add_to_cart_page' %}" method="POST">
+            {% csrf_token %}
+            <input name="slug" value="{{ i.product.slug }}" type="hidden">
+            <input type="submit" value="^" class="btn btn-danger">
+        </form>
+        <form action="{% url 'change_qty' %}" method=POST>
+          {% csrf_token %}
+          <input name="slug" value="{{ i.product.slug }}" type="hidden">
+            <input name="cart" value="{{ cart }}" type="hidden">
+        <input required="required" type="number" min="1" name="qty" value="{{ i.qty }}">
+        </form>
+        <form action="{% url 'remove_cart_product' %}" method="POST">
+            {% csrf_token %}
+            <input name="slug" value="{{ i.product.slug }}" type="hidden">
+            <input name="cart" value="{{ cart }}" type="hidden">
+            <input type="submit" value="v" class="btn btn-danger">
+        </form>
+      </td>
       <td class="w-25">{{ i.final_price }}</td>
-      <td class="w-25"><a href="{% url 'remove_cart_product' cart=i.cart slug=i.product.slug %}" class="btn btn-danger">-</a></td>
-      <td class="w-25"><a href="{% url 'add_to_cart_page' slug=i.product.slug %}" class="btn btn-danger">+</a></td>
     </tr>
 {% endfor %}
   <tbody>

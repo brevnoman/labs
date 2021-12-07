@@ -20,7 +20,11 @@
             </br>
             {% endfor %}
         </p>
-        <a href="{% url 'add_to_cart_page' slug=product.slug %}" class="btn btn-danger" role="button">Add to cart</a>
+        <form action="{% url 'add_to_cart_page' %}" method="POST">
+            {% csrf_token %}
+            <input name="slug" value="{{ product.slug }}" type="hidden">
+            <input type="submit" value="Add to cart" class="btn btn-danger">
+        </form>
     </div>
         <div class="col-md-6 offset-md-3">
             <table class="table">
