@@ -32,7 +32,7 @@ Cart
         <form action="{% url 'add_to_cart_page' %}" method="POST">
             {% csrf_token %}
             <input name="slug" value="{{ i.product.slug }}" type="hidden">
-            <input type="submit" value="^" class="btn btn-danger">
+            <input type="submit" value="^" class="btn btn-dark">
         </form>
         <form action="{% url 'change_qty' %}" method=POST>
           {% csrf_token %}
@@ -44,7 +44,7 @@ Cart
             {% csrf_token %}
             <input name="slug" value="{{ i.product.slug }}" type="hidden">
             <input name="cart" value="{{ cart }}" type="hidden">
-            <input type="submit" value="v" class="btn btn-danger">
+            <input type="submit" value="v" class="btn btn-dark">
         </form>
       </td>
       <td class="w-25">{{ i.final_price }}</td>
@@ -57,7 +57,7 @@ Cart
       <td class="w-25"></td>
         <td class="w-25">Total Price:</td>
       <td class="w-25">{{ cart.final_price }}</td>
-      <td class="w-25"><a href="{% url 'checkout' %}" class="btn btn-primary">Make order</a></td>
+      <td class="w-25"><a href="{% url 'checkout' %}" class="btn btn-outline-dark">Make order</a></td>
     </tr>
 </table>
 {% endblock %}

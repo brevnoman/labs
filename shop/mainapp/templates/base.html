@@ -13,7 +13,7 @@
     </head>
     <body>
         <!-- Navigation-->
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <nav class="navbar navbar-dark bg-dark navbar-expand-lg bg-gradient">
             <div class="container px-4 px-lg-5">
                 <a class="navbar-brand" href="#!">Start Bootstrap</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
@@ -33,26 +33,26 @@
                     {% if user.is_authenticated %}
                     <form action="{% url 'logout_page' %}" method="POST">
                         {% csrf_token %}
-                        <input  formmethod="POST" type="submit" value="Logout" class="btn btn-outline-dark">
+                        <input  formmethod="POST" type="submit" value="Logout" class="btn btn-outline-light">
                     </form>
                     <form class="d-flex">
-                        <a href="{% url 'wishlist' %}" class="btn btn-outline-dark" role="button">
+                        <a href="{% url 'wishlist' %}" class="btn btn-outline-light" role="button">
                             <i class="bi bi-clipboard-check"></i>
                             Wishlist
                             </a>
                     </form>
                         {% else %}
                     <form class="d-flex">
-                        <a href="{% url 'login_page' %}" class="btn btn-outline-dark" role="button">
+                        <a href="{% url 'login_page' %}" class="btn btn-outline-light" role="button">
                             Sing In
                         </a>
-                        <a href="{% url 'register_page' %}" class="btn btn-outline-dark" role="button">
+                        <a href="{% url 'register_page' %}" class="btn btn-outline-light" role="button">
                             Registration
                         </a>
                     </form>
                     {% endif %}
                     <form class="d-flex">
-                        <a href="{% url 'cart' %}" class="btn btn-outline-dark" role="button">
+                        <a href="{% url 'cart' %}" class="btn btn-outline-light" role="button">
                             <i class="bi-cart-fill me-1"></i>
                             Cart
                             <span class="badge bg-dark text-white ms-1 rounded-pill">{{ cart.total_products }}</span>
