@@ -1,4 +1,3 @@
-from django.db import models
 
 
 def recalc_cart(cart):

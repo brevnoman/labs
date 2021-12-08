@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Wishlist{% endblock %}
+
+{% block content %}
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Product</th>
+      <th scope="col">Image</th>
+      <th scope="col">Cost</th>
+      <th scope="col">Delete</th>
+    </tr>
+  </thead>
+{% for product in wishlist.products.all %}
+  <tbody>
+    <tr>
+      <th scope="row">{{ product.title }}</th>
+      <td class="w-25">
+        <a href="{% url 'product_detail_page' slug=product.slug %}">
+        {% if product.image %}
+            <img class="img-fluid" src="{{ product.image.url }}" width="100%">
+        {% else %}
+            <img class="img-fluid" src="https://zenit.by/images/no_photo.png" width="100%">
+        {% endif %}</a></td>
+        <td class="w-25">{{ product.price }}</td>
+      <td class="w-25">
+        <form action="{% url 'remove_from_wishlist' %}" method="POST">
+            {% csrf_token %}
+            <input name="slug" value="{{ product.slug }}" type="hidden">
+            <input type="submit" value="^" class="btn btn-danger">
+        </form>
+      </td>
+    </tr>
+{% endfor %}
+{% endblock %}

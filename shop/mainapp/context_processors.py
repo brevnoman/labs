@@ -1,19 +1,24 @@
-from mainapp.models import Category, Cart
+from mainapp.models import Category, Cart, Wishlist
 from mainapp.utils import recalc_cart
 
 
 def cart_and_categorise(request):
+    categories = Category.objects.all()
     if request.user.is_authenticated:
+        wishlist, created_wishlist = Wishlist.objects.get_or_create(owner=request.user)
+        if created_wishlist:
+            wishlist.save()
         cart, created = Cart.objects.get_or_create(owner=request.user, in_order=False)
         if created:
             cart.save()
+        context = {'cart': cart, 'categories': categories, 'wishlist': wishlist}
     else:
         cart = Cart.objects.create(
             for_anonymous_user=True
         )
-    categories = Category.objects.all()
+        context = {'cart': cart, 'categories': categories}
     recalc_cart(cart)
-    return{'cart': cart, 'categories': categories}
+    return context
 
 
 # class CartAndCategoriesMiddleware:

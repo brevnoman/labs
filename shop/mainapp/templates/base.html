@@ -30,18 +30,26 @@
                             </ul>
                         </li>
                     </ul>
+                    {% if user.is_authenticated %}
                     <form action="{% url 'logout_page' %}" method="POST">
                         {% csrf_token %}
-                        {% if user.is_authenticated %}
                         <input  formmethod="POST" type="submit" value="Logout" class="btn btn-outline-dark">
                     </form>
+                    <form class="d-flex">
+                        <a href="{% url 'wishlist' %}" class="btn btn-outline-dark" role="button">
+                            <i class="bi bi-clipboard-check"></i>
+                            Wishlist
+                            </a>
+                    </form>
                         {% else %}
+                    <form class="d-flex">
                         <a href="{% url 'login_page' %}" class="btn btn-outline-dark" role="button">
                             Sing In
                         </a>
                         <a href="{% url 'register_page' %}" class="btn btn-outline-dark" role="button">
                             Registration
                         </a>
+                    </form>
                     {% endif %}
                     <form class="d-flex">
                         <a href="{% url 'cart' %}" class="btn btn-outline-dark" role="button">

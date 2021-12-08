@@ -2,7 +2,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect
 from django.views.generic import View
-from mainapp.models import Product, Category, Cart, CartProduct
+from mainapp.models import Product, Category, Cart, CartProduct, Wishlist
 from mainapp.forms import OrderForm, CustomerCreationForm
 from mainapp.utils import recalc_cart
 from django.db import transaction
@@ -75,7 +75,11 @@ class LoginView(View):
             if user is not None:
                 login(request, user)
                 return redirect('main_page')
-        return redirect('login_page')
+        return render(request,
+                      'login.html',
+                      context={
+                          'form': form
+                      })
 
 
 def logout_user(request):
@@ -132,7 +136,6 @@ class DecreaseCartProductView(View):
     def post(self, request, *args, **kwargs):
         cart = request.POST.get('cart')
         slug = request.POST.get('slug')
-        print(request.POST)
         product = Product.objects.get(slug=slug)
         cart_product = CartProduct.objects.get(product=product, cart=cart)
         cart_product.qty -= 1
@@ -201,16 +204,29 @@ class MakeOrderView(View):
         return redirect('checkout')
 
 
-# class WishListView(View):
-#
-#     def get(self, request, *args, **kwargs):
+class WishlistView(View):
+
+    def get(self, request, *args, **kwargs):
+        wishlist = Wishlist.objects.get(owner=request.user)
+        return render(request, 'wishlist.html', context={'wishlist': wishlist})
 
 
-# def main_page(request):
-#     product = Product.objects.all()
-#     category = Category.objects.all()
-#     customer = Customer.objects.all()
-#     cart = Cart.objects.all()
-#     cart_product = CartProduct.objects.all()
-#     return render(request, 'test.html', context={'product': product, 'category': category, 'customer': customer,
-#                                                  'cart': cart, 'cart_product': cart_product})
+class RemoveWishView(View):
+
+    def post(self, request, *args, **kwargs):
+        slug = request.POST.get('slug')
+        product = Product.objects.get(slug=slug)
+        wishlist = Wishlist.objects.get(owner=request.user)
+        wishlist.products.remove(product)
+        wishlist.save()
+        return redirect('wishlist')
+
+class AddToWishlistView(View):
+
+    def post(self, request, *args, **kwargs):
+        slug = request.POST.get('slug')
+        product = Product.objects.get(slug=slug)
+        wishlist = Wishlist.objects.get(owner=request.user)
+        wishlist.products.add(product)
+        wishlist.save()
+        return redirect('wishlist')

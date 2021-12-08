@@ -50,11 +50,8 @@ class CartProduct(models.Model):
     def save(self, *args, **kwargs):
         self.final_price = self.product.price * self.qty
         super().save(*args, **kwargs)
-        cart = Cart.objects.get(pk=self.cart.pk)
         if self.qty <= 0:
             self.delete()
-        cart.total_products = 0
-        cart.save()
 
 
 class Cart(models.Model):

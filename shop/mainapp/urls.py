@@ -1,6 +1,6 @@
 from django.urls import path
 from mainapp.views import DecreaseCartProductView, AddCartProductView, CartView, MainPageView, ProductView, RegisterView, LoginView, \
-    CategoryView, logout_user, AllProductsView, CheckoutView, MakeOrderView, ChangeQtyView
+    CategoryView, logout_user, AllProductsView, CheckoutView, MakeOrderView, ChangeQtyView, WishlistView, RemoveWishView, AddToWishlistView
 
 
 urlpatterns = [
@@ -16,5 +16,8 @@ urlpatterns = [
     path('cart/remove/', DecreaseCartProductView.as_view(), name='remove_cart_product'),
     path('checkout/', CheckoutView.as_view(), name='checkout'),
     path('make_order/', MakeOrderView.as_view(), name='make_order'),
-    path('change_qty/', ChangeQtyView.as_view(), name='change_qty')
+    path('change_qty/', ChangeQtyView.as_view(), name='change_qty'),
+    path('wishlist/', WishlistView.as_view(), name='wishlist'),
+    path('remove_from_wishlist', RemoveWishView.as_view(), name='remove_from_wishlist'),
+    path('add_to_wishlist', AddToWishlistView.as_view(), name='add_to_wishlist')
 ]
