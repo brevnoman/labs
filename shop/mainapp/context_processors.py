@@ -13,7 +13,7 @@ def cart_and_categorise(request):
             cart.save()
         context = {'cart': cart, 'categories': categories, 'wishlist': wishlist}
     else:
-        cart = Cart.objects.create(
+        cart, created = Cart.objects.get_or_create(
             for_anonymous_user=True
         )
         context = {'cart': cart, 'categories': categories}

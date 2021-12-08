@@ -5,7 +5,6 @@ from django.db import models
 class Category(models.Model):
     name = models.CharField(max_length=255,
                             verbose_name='Category name')
-    slug = models.SlugField(unique=True)
 
     def __str__(self):
         return self.name
@@ -17,7 +16,6 @@ class Product(models.Model):
                                       related_name='related_product')
     title = models.CharField(max_length=255,
                              verbose_name='Product title')
-    slug = models.SlugField(unique=True)
     image = models.ImageField(verbose_name='Product Image',
                               blank=True)
     description = models.TextField(verbose_name='Product description',
@@ -58,7 +56,8 @@ class Cart(models.Model):
     owner = models.ForeignKey('Customer',
                               null=True,
                               verbose_name='Cart Owner',
-                              on_delete=models.CASCADE)
+                              on_delete=models.CASCADE,
+                              blank=True)
     products = models.ManyToManyField(CartProduct,
                                       blank=True,
                                       related_name='related_cart')

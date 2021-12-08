@@ -19,8 +19,8 @@ class AllProductsView(View):
 
 class ProductView(View):
 
-    def get(self, request, slug, *args, **kwargs):
-        products_qs = Product.objects.get(slug=slug)
+    def get(self, request, id, *args, **kwargs):
+        products_qs = Product.objects.get(id=id)
         return render(request, 'product_detail.html', context={'product': products_qs})
 
 
@@ -88,14 +88,14 @@ def logout_user(request):
 
 
 class CategoryView(View):
-    def get(self, request, slug, *args, **kwargs):
-        category = Category.objects.get(slug=slug)
+    def get(self, request, id, *args, **kwargs):
+        category = Category.objects.get(id=id)
         products = Product.objects.filter(category=category)
         return render(request,
                       'category_products.html',
                       {
                        'products': products,
-                       'slug': slug
+                       'id': id
                       })
 
 
@@ -113,10 +113,10 @@ class CartView(View):
 class AddCartProductView(View):
 
     def post(self, request, *args, **kwargs):  # make it POST method
-        slug = request.POST.get('slug')
+        id = request.POST.get('id')
         if not request.user.is_authenticated:
             return redirect('register_page')
-        product = Product.objects.get(slug=slug)
+        product = Product.objects.get(id=id)
         cart = Cart.objects.get(owner=request.user, in_order=False)
         cart_product, created = CartProduct.objects.get_or_create(
             cart=cart,
@@ -135,8 +135,8 @@ class DecreaseCartProductView(View):
 
     def post(self, request, *args, **kwargs):
         cart = request.POST.get('cart')
-        slug = request.POST.get('slug')
-        product = Product.objects.get(slug=slug)
+        id = request.POST.get('id')
+        product = Product.objects.get(id=id)
         cart_product = CartProduct.objects.get(product=product, cart=cart)
         cart_product.qty -= 1
         cart_product.save()
@@ -147,10 +147,10 @@ class ChangeQtyView(View):
 
     def post(self, request, *args, **kwargs):
         qty = int(request.POST.get('qty'))
-        slug = request.POST.get('slug')
+        id = request.POST.get('id')
         cart = request.POST.get('cart')
         print(request.POST)
-        product = Product.objects.get(slug=slug)
+        product = Product.objects.get(id=id)
         cart_product = CartProduct.objects.get(product=product, cart=cart)
         cart_product.qty = qty
         cart_product.save()
@@ -214,8 +214,8 @@ class WishlistView(View):
 class RemoveWishView(View):
 
     def post(self, request, *args, **kwargs):
-        slug = request.POST.get('slug')
-        product = Product.objects.get(slug=slug)
+        id = request.POST.get('id')
+        product = Product.objects.get(id=id)
         wishlist = Wishlist.objects.get(owner=request.user)
         wishlist.products.remove(product)
         wishlist.save()
@@ -224,8 +224,8 @@ class RemoveWishView(View):
 class AddToWishlistView(View):
 
     def post(self, request, *args, **kwargs):
-        slug = request.POST.get('slug')
-        product = Product.objects.get(slug=slug)
+        id = request.POST.get('id')
+        product = Product.objects.get(id=id)
         wishlist = Wishlist.objects.get(owner=request.user)
         wishlist.products.add(product)
         wishlist.save()

@@ -22,12 +22,12 @@
         </p>
         <form action="{% url 'add_to_cart_page' %}" method="POST">
             {% csrf_token %}
-            <input name="slug" value="{{ product.slug }}" type="hidden">
+            <input name="id" value="{{ product.id }}" type="hidden">
             <input type="submit" value="Add to Cart" class="btn btn-dark">
         </form>
         <form action="{% url 'add_to_wishlist' %}" method="POST">
                 {% csrf_token %}
-            <input name="slug" value="{{ product.slug }}" type="hidden">
+            <input name="id" value="{{ product.id }}" type="hidden">
             <input type="submit" value="Add to Wishlist" class="btn btn-dark">
         </form>
     </div>

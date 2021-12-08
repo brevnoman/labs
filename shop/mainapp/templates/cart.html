@@ -31,18 +31,18 @@ Cart
       <td class="w-25">
         <form action="{% url 'add_to_cart_page' %}" method="POST">
             {% csrf_token %}
-            <input name="slug" value="{{ i.product.slug }}" type="hidden">
+            <input name="id" value="{{ i.product.id }}" type="hidden">
             <input type="submit" value="^" class="btn btn-dark">
         </form>
         <form action="{% url 'change_qty' %}" method=POST>
           {% csrf_token %}
-          <input name="slug" value="{{ i.product.slug }}" type="hidden">
+          <input name="id" value="{{ i.product.id }}" type="hidden">
             <input name="cart" value="{{ cart }}" type="hidden">
         <input required="required" type="number" min="1" name="qty" value="{{ i.qty }}">
         </form>
         <form action="{% url 'remove_cart_product' %}" method="POST">
             {% csrf_token %}
-            <input name="slug" value="{{ i.product.slug }}" type="hidden">
+            <input name="id" value="{{ i.product.id }}" type="hidden">
             <input name="cart" value="{{ cart }}" type="hidden">
             <input type="submit" value="v" class="btn btn-dark">
         </form>
