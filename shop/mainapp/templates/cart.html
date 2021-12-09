@@ -5,6 +5,8 @@ Cart
 {% endblock %}
 
 {% block content %}
+<h1>Yor Cart</h1>
+{% if cart.total_products > 0 %}
 <table class="table">
   <thead>
     <tr>
@@ -19,13 +21,14 @@ Cart
 {% for i in cart.products.all %}
   <tbody>
     <tr>
-      <th scope="row">{{ i.product.title }}</th>
+      <th scope="row"><a class="link-dark" href="{% url 'product_detail_page' id=i.product.id %}">{{ i.product.title }}</a></th>
       <td class="w-25">
+        <a href="{% url 'product_detail_page' id=i.product.id %}">
         {% if i.product.image %}
             <img class="img-fluid" src="{{ i.product.image.url }}" width="100%">
         {% else %}
             <img class="img-fluid" src="https://zenit.by/images/no_photo.png" width="100%">
-        {% endif %}</td>
+        {% endif %}</a></td>
         </td>
         <td class="w-25">{{ i.product.price }}</td>
       <td class="w-25">
@@ -50,6 +53,7 @@ Cart
       <td class="w-25">{{ i.final_price }}</td>
     </tr>
 {% endfor %}
+
   <tbody>
     <tr>
       <th scope="row"></th>
@@ -59,6 +63,10 @@ Cart
       <td class="w-25">{{ cart.final_price }}</td>
       <td class="w-25"><a href="{% url 'checkout' %}" class="btn btn-outline-dark">Make order</a></td>
     </tr>
+</tbody>
+  {% else %}
+  <h1>is empty</h1>
+  {% endif %}
 </table>
 {% endblock %}
 <!--<img class="img-fluid" src="-->

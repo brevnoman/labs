@@ -15,7 +15,7 @@
 {% for product in wishlist.products.all %}
   <tbody>
     <tr>
-      <th scope="row">{{ product.title }}</th>
+      <th scope="row"><a class="link-dark" href="{% url 'product_detail_page' id=product.id %}">{{ product.title }}</a></th>
       <td class="w-25">
         <a href="{% url 'product_detail_page' id=product.id %}">
         {% if product.image %}
