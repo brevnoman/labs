@@ -8,8 +8,8 @@ from mainapp.forms import UserForm, QuestionForm, InterviewForm, GradeForm
 
 @app.route('/')
 def main_page():
-    user = User.query.all()
-    return f"{user}"
+    query = User.query.all()
+    return render_template('index.html', query=query)
 
 
 @app.route('/users')
@@ -78,14 +78,14 @@ def add_interview():
                             interviewers=interviewers,
                             )
         all = [interview]
-        # for user in interviewers:
-        #     for question in question_list:
-        #         grade = Grade(
-        #             question=question,
-        #             interviewer=user,
-        #             interview=interview
-        #         )
-        #         all.append(grade)
+        for user in interviewers:
+            for question in question_list:
+                grade = Grade(
+                    question=question,
+                    interviewer=user,
+                    interview=interview
+                )
+                all.append(grade)
         db.session.add_all(all)
         db.session.commit()
         return redirect('/add-interview')
@@ -113,5 +113,5 @@ def add_grade():
                             )
         db.session.add(grade)
         db.session.commit()
-        return redirect('/add-question')
+        return redirect('/add-grade')
     return render_template('form.html', form=form)

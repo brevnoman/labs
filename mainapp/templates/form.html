@@ -1,10 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block content %}
 <form action="" method="post" novalidate>
 {% for field in form %}
 {{ field.label }}
@@ -12,5 +7,4 @@
 </br>
 {% endfor %}
 </form>
-</body>
-</html>
+{% endblock %}
