@@ -63,7 +63,7 @@ def interviews():
 
 @app.route('/add-interview', methods=["GET", "POST"])
 def add_interview():
-    form = InterviewForm()
+    form = InterviewForm().new()
     if form.validate_on_submit():
         question_list = []
         interviewers = []

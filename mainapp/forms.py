@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, IntegerField
 from wtforms.validators import DataRequired
 from wtforms.fields import SelectMultipleField, SelectField
-from mainapp.models import Question, Interview, User, Grade
+from mainapp.models import Question, Interview, User
 
 
 class UserForm(FlaskForm):
@@ -26,12 +26,21 @@ class QuestionForm(FlaskForm):
 
 
 class InterviewForm(FlaskForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     candidate_name = StringField('Candidate Name', validators=[DataRequired()])
     question_list = SelectMultipleField("Choose Questions", choices=Question.get_selection_list())
     interviewers = SelectMultipleField("Choose Interviewers", choices=User.get_selection_list())
-    # grades = db.relationship('Grade', secondary=interview_grades, lazy='subquery',
-    #                          backref=db.backref('interviews', lazy=True))
     submit = SubmitField("Add")
+
+    @classmethod
+    def new(cls):
+        form = cls()
+        form.interviewers.choices = User.get_selection_list()
+        form.question_list.choices = Question.get_selection_list()
+        return form
 
 
 class GradeForm(FlaskForm):
@@ -39,3 +48,11 @@ class GradeForm(FlaskForm):
     question_list = SelectField("Choose Questions", choices=Question.get_selection_list())
     interviews = SelectField("Choose Interview", choices=Interview.get_selection_list())
     submit = SubmitField('add')
+
+    @classmethod
+    def new(cls):
+        form = cls()
+        form.interviewers.choices = User.get_selection_list()
+        form.question_list.choices = Question.get_selection_list()
+        form.interviews.choices = Interview.get_selection_list()
+        return form

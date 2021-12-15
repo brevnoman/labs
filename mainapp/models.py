@@ -24,7 +24,6 @@ class User(UserMixin, db.Model):
     last_name = db.Column(db.String(64))
     password_hash = db.Column(db.String(255))
     is_admin = db.Column(db.Boolean(False))
-    # grades = db.relationship("Grade", backref='users', lazy=True)
 
     def __repr__(self):
         return f"{self.first_name} {self.last_name}"
@@ -51,7 +50,6 @@ class Question(db.Model):
     answer = db.Column(db.String(64))
     max_grade = db.Column(db.Integer)
     short_description = db.Column(db.String(128))
-    # grades = db.relationship("Grade", backref='questions', lazy=True)
 
     def __repr__(self):
         return f"{self.short_description}"
@@ -74,7 +72,6 @@ class Interview(db.Model):
     interviewers = db.relationship('User', secondary=interview_user, lazy='subquery',
                                    backref=db.backref('interviews', lazy=True))
     result_grade = db.Column(db.Float(precision=2))
-    # grades = db.relationship("Grade", backref='interviews', lazy=True)
 
     def __repr__(self):
         return f"{self.candidate_name}"
