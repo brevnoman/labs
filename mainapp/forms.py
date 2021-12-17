@@ -8,7 +8,7 @@ from mainapp.models import Question, Interview, User
 class UserForm(FlaskForm):
 
     username = StringField("Username", validators=[DataRequired()])
-    email = StringField("Email", validators=[DataRequired()])
+    email = StringField("Email")
     first_name = StringField("First Name")
     last_name = StringField("Lask Name")
     password = PasswordField("Password", validators=[DataRequired()])
