@@ -1,7 +1,7 @@
-from mainapp import ma
+from mainapp import ma, db
 from mainapp.models import User, Grade, Interview, Question
-from marshmallow import fields, post_load, validate
-from flask_restful import Resource
+from marshmallow import fields, validate
+
 
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
@@ -20,12 +20,33 @@ class GradeSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Grade
 
-
-class InterviewSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Interview
+    id = ma.auto_field()
+    question_id = fields.Int(required=True)
+    interviewer_id = fields.Int(required=True)
+    interview_id = fields.Int(required=True)
+    grade = fields.Int(required=True)
 
 
 class QuestionSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Question
+
+    id = ma.auto_field()
+    question_description = fields.Str(required=True)
+    answer = fields.Str(required=True, validate=validate.Length(64))
+    max_grade = fields.Int(required=True)
+    short_description = fields.Str(required=True, validate=validate.Length(128))
+
+
+class InterviewSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Interview
+        sqla_session = db.session
+
+    id = ma.auto_field()
+    candidate_name = fields.Str(required=True, validate=[validate.Length(64)])
+    question_list = fields.Nested("QuestionSchema", default=[], many=True, required=True)
+    interviewers = fields.Nested("UserSchema", default=[], many=True, required=True)
+    result_grade = fields.Decimal(rounding="2", required=True)
+
+

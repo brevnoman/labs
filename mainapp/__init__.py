@@ -21,3 +21,6 @@ api = Api(app)
 from mainapp import routes, models, schema, api_routes, api_routes
 
 api.add_resource(api_routes.UserApi, '/api/user')
+api.add_resource(api_routes.GradesApi, '/api/grade')
+api.add_resource(api_routes.QuestionApi, '/api/question')
+api.add_resource(api_routes.InterviewApi, '/api/interview')
