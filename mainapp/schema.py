@@ -7,7 +7,7 @@ from marshmallow import fields, validate
 class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
-
+        exclude = ['password_hash']
     id = ma.auto_field()
     username = fields.Str(validate=[validate.Length(64)], required=True)
     email = fields.Str(required=True)
@@ -22,8 +22,11 @@ class GradeSchema(ma.SQLAlchemyAutoSchema):
 
     id = ma.auto_field()
     question_id = fields.Int(required=True)
+    question = fields.Nested("QuestionSchema", default=[], required=True)
     interviewer_id = fields.Int(required=True)
+    interviewer = fields.Nested("UserSchema", default=[], required=True)
     interview_id = fields.Int(required=True)
+    interview = fields.Nested("InterviewSchema", default=[], required=True)
     grade = fields.Int(required=True)
 
 

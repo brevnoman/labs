@@ -24,7 +24,8 @@ def add_user():
         user = User(username=form.username.data,
                     email=form.email.data,
                     first_name=form.first_name.data,
-                    last_name=form.last_name.data
+                    last_name=form.last_name.data,
+                    is_admin=form.is_admin.data
                     )
         user.set_password(form.password.data)
         db.session.add(user)
