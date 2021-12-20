@@ -8,7 +8,6 @@ from mainapp.schema import UserSchema, GradeSchema, InterviewSchema, QuestionSch
 class UserApi(Resource):
 
     def get_user_query(self, args):
-        print(args.to_dict())
         users = User.query
         if args.get("id"):
             users = users.filter_by(id=args.get('id'))

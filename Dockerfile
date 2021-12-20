@@ -4,7 +4,7 @@ WORKDIR /app
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-ENV DATABASE_URL 'postgresql://admin:admin@localhost/flask_app'
+ENV DATABASE_URL 'postgresql://admin:admin@172.17.0.1:5432/flask_app'
 ENV FLASK_APP 'interview.py'
 
 COPY requirements.txt /app/requirements.txt
