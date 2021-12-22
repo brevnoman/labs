@@ -1,23 +1,24 @@
-from mainapp import app, db
 from flask import render_template, flash, redirect
+from flask_login import login_user, login_required, logout_user
+
+from mainapp import app, db, login
+from mainapp.forms import UserForm, QuestionForm, InterviewForm, GradeForm, LoginForm
 from mainapp.models import User, Question, Interview, Grade
-from mainapp.forms import UserForm, QuestionForm, InterviewForm, GradeForm
 
 
 # from flask_login import current_user, login_user
 
+
 @app.route('/')
-def main_page():
-    query = User.query.all()
-    return render_template('index.html', query=query)
-
-
 @app.route('/users')
+@login_required
 def a():
     query = User.query.all()
     return render_template('index.html', query=query)
 
+
 @app.route('/add-user', methods=["GET", "POST"])
+@login_required
 def add_user():
     form = UserForm()
     if form.validate_on_submit():
@@ -36,12 +37,14 @@ def add_user():
 
 
 @app.route('/questions')
+@login_required
 def questions():
     query = Question.query.all()
     return render_template('index.html', query=query)
 
 
 @app.route('/add-question', methods=["GET", "POST"])
+@login_required
 def add_question():
     form = QuestionForm()
     if form.validate_on_submit():
@@ -57,12 +60,14 @@ def add_question():
 
 
 @app.route('/interviews')
+@login_required
 def interviews():
     query = Interview.query.all()
     return render_template('index.html', query=query)
 
 
 @app.route('/add-interview', methods=["GET", "POST"])
+@login_required
 def add_interview():
     form = InterviewForm().new()
     if form.validate_on_submit():
@@ -92,14 +97,16 @@ def add_interview():
         return redirect('/add-interview')
     return render_template('form.html', form=form)
 
+
 @app.route('/grades')
+@login_required
 def grades():
     query = Grade.query.all()
     return render_template('index.html', query=query)
 
 
-
 @app.route('/add-grade', methods=["POST", "GET"])
+@login_required
 def add_grade():
     form = GradeForm()
     if form.validate_on_submit():
@@ -111,8 +118,36 @@ def add_grade():
             question=question,
             interview=interview,
             grade=1
-                            )
+        )
         db.session.add(grade)
         db.session.commit()
         return redirect('/add-grade')
     return render_template('form.html', form=form)
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login_route():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user:
+            if user.get_password(form.password.data):
+                login_user(user)
+                flash("Login successful")
+                return redirect("/")
+            flash("Invalid password")
+            return render_template("form.html", form=form)
+        flash("Invalid username")
+    return render_template("form.html", form=form)
+
+
+@login_required
+@app.route("/logout")
+def logout_route():
+    logout_user()
+    return redirect('/login')
+
+
+@login.unauthorized_handler
+def unauthorized_callback():
+    return redirect('/login')

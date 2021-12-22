@@ -1,7 +1,9 @@
 from flask import jsonify, request
+from flask_login import login_user, login_required, logout_user
 from flask_restful import Resource
 
 from mainapp import db
+from mainapp.forms import LoginForm
 from mainapp.models import User, Grade, Interview, Question
 from mainapp.schema import UserSchema, GradeSchema, InterviewSchema, QuestionSchema
 
@@ -20,6 +22,7 @@ class MainResource(Resource):
     def get_schema(self):
         pass
 
+    @login_required
     def get(self):
         args = request.args
         objects = self.get_model_query(args=args).all()
@@ -36,6 +39,7 @@ class MainResource(Resource):
     #     db.session.commit()
     #     return {'result': 'done'}
 
+    @login_required
     def delete(self):
         args = request.args
         user = self.get_model_query(args).first()
@@ -43,6 +47,7 @@ class MainResource(Resource):
         db.session.commit()
         return {'success': 'True'}
 
+    @login_required
     def patch(self):
         args = request.args
         user = self.get_model_query(args)
@@ -53,6 +58,7 @@ class MainResource(Resource):
         db.session.commit()
         return jsonify(output)
 
+    @login_required
     def post(self):
         form = request.form
         object = self.create_object(form=form)
@@ -366,3 +372,25 @@ class QuestionApi(MainResource):
     #     questions_schema = QuestionSchema(many=True)
     #     output = questions_schema.dump(questions)
     #     return jsonify(output)
+
+
+class LoginApi(Resource):
+
+    def post(self):
+        form = LoginForm(data=request.form)
+        user = User.query.filter_by(username=form.username.data).first()
+        print(user)
+        if User.query.filter_by(username=form.username.data).first():
+            if user.get_password(form.password.data):
+                login_user(user)
+                return {"login": "success"}
+            return {"error": "invalid password"}
+        return {"error": "invalid username"}
+
+
+class LogoutApi(Resource):
+
+    @login_required
+    def post(self):
+        logout_user()
+        return {"logout": "success"}

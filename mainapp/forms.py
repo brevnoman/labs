@@ -1,12 +1,12 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, IntegerField
-from wtforms.validators import DataRequired
 from wtforms.fields import SelectMultipleField, SelectField
+from wtforms.validators import DataRequired
+
 from mainapp.models import Question, Interview, User
 
 
 class UserForm(FlaskForm):
-
     username = StringField("Username", validators=[DataRequired()])
     email = StringField("Email")
     first_name = StringField("First Name")
@@ -56,3 +56,9 @@ class GradeForm(FlaskForm):
         form.question_list.choices = Question.get_selection_list()
         form.interviews.choices = Interview.get_selection_list()
         return form
+
+
+class LoginForm(FlaskForm):
+    username = StringField("username", validators=[DataRequired()])
+    password = PasswordField("password", validators=[DataRequired()])
+    submit = SubmitField("Sign In")
