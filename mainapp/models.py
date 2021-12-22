@@ -1,6 +1,7 @@
-from mainapp import db
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
+
+from mainapp import db
 from mainapp import login
 
 interview_question = db.Table('interview_question',
@@ -37,9 +38,12 @@ class User(UserMixin, db.Model):
     @staticmethod
     def get_selection_list():
         result = []
-        for i in User.query.all():
-            result.append((f"{i.id}", f"{i.first_name} {i.last_name}"))
-        return result
+        try:
+            for i in User.query.all():
+                result.append((f"{i.id}", f"{i.first_name} {i.last_name}"))
+            return result
+        except AttributeError:
+            return []
 
 
 class Question(db.Model):
@@ -83,6 +87,7 @@ class Interview(db.Model):
             result.append((f"{i.id}", f"{i.candidate_name}"))
         return result
 
+
 class Grade(db.Model):
     __tablename__ = 'grades'
 
@@ -100,5 +105,5 @@ class Grade(db.Model):
 
 
 @login.user_loader
-def load_user(id):
-    return User.query.get(int(id))
+def load_user(user_id):
+    return User.query.get(int(user_id))

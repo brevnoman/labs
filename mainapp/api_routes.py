@@ -25,44 +25,36 @@ class MainResource(Resource):
     @login_required
     def get(self):
         args = request.args
-        objects = self.get_model_query(args=args).all()
+        model_objects = self.get_model_query(args=args).all()
         schema = self.get_schema()
-        users_schema = schema(many=True)
-        output = users_schema.dump(objects)
+        model_schema = schema(many=True)
+        output = model_schema.dump(model_objects)
         return jsonify(output)
-
-    # def put(self):
-    #     form = request.args
-    #     user = self.edit_object(user=user, form=form)
-    #     user.set_password(request.args.get('password'))
-    #     db.session.add(user)
-    #     db.session.commit()
-    #     return {'result': 'done'}
 
     @login_required
     def delete(self):
         args = request.args
-        user = self.get_model_query(args).first()
-        db.session.delete(user)
+        model_object = self.get_model_query(args).first()
+        db.session.delete(model_object)
         db.session.commit()
         return {'success': 'True'}
 
     @login_required
     def patch(self):
         args = request.args
-        user = self.get_model_query(args)
+        model_object = self.get_model_query(args).first()
         form = request.form
-        user = self.edit_object(user, form)
-        users_schema = self.get_schema()()
-        output = users_schema.dump(user)
+        model_object = self.edit_object(model_object, form)
+        object_schema = self.get_schema()()
+        output = object_schema.dump(model_object)
         db.session.commit()
         return jsonify(output)
 
     @login_required
     def post(self):
         form = request.form
-        object = self.create_object(form=form)
-        db.session.add(object)
+        model_object = self.create_object(form=form)
+        db.session.add(model_object)
         db.session.commit()
         return {'result': 'done'}
 
@@ -84,7 +76,6 @@ class UserApi(MainResource):
         return users
 
     def edit_object(self, user, form):
-        print(form.to_dict())
         if form.get("username"):
             user.username = form.get('username')
         if form.get('email'):
@@ -105,18 +96,6 @@ class UserApi(MainResource):
     def get_schema(self):
         return UserSchema
 
-    # def post(self):  # what should we do by POST method?
-    #     changes = request.form
-    #     print(changes)
-    #     args = ""
-    #     for key, value in request.args.items():
-    #         args += f"{key}={value},"
-    #     user = eval("User.query.filter_by(" + args[:-1] + ").all()")
-    #
-    #     users_schema = UserSchema(many=True)
-    #     output = users_schema.dump(user)
-    #     return jsonify(output)
-
 
 class GradesApi(MainResource):
 
@@ -135,6 +114,7 @@ class GradesApi(MainResource):
         return grades
 
     def edit_object(self, grade, form):
+        grade = grade.first()
         if form.get("question_id"):
             grade.question_id = form.get('question_id')
         if form.get('interviewer_id'):
@@ -154,50 +134,6 @@ class GradesApi(MainResource):
             raise Exception("no")
         grade = self.edit_object(grade=grade, form=form)
         return grade
-
-    # def get(self):
-    #     args = request.args
-    #     grades = self.get_grades_query(args=args).all()
-    #     grades_schema = GradeSchema(many=True)
-    #     output = grades_schema.dump(grades)
-    #     return jsonify(output)
-    #
-    # def put(self):
-    #     form = request.args
-    #     grade = Grade()
-    #     grade = self.edit_grade(grade=grade, form=form)
-    #     db.session.add(grade)
-    #     db.session.commit()
-    #     return {'result': 'done'}
-    #
-    # def delete(self):
-    #     args = request.args
-    #     grade = self.get_grades_query(args=args).first()
-    #     db.session.delete(grade)
-    #     db.session.commit()
-    #     return {'grade': 'deleted successful'}
-    #
-    # def patch(self):
-    #     args = request.args
-    #     grade = self.get_grades_query(args).first()
-    #     form = request.form
-    #     grade = self.edit_grade(grade=grade, form=form)
-    #     grade_schema = GradeSchema()
-    #     output = grade_schema.dump(grade)
-    #     db.session.commit()
-    #     return jsonify(output)
-    #
-    # def post(self):  # what should we do by POST method?
-    #     changes = request.form
-    #     print(changes)
-    #     args = ""
-    #     for key, value in request.args.items():
-    #         args += f"{key}={value},"
-    #     grade = eval("Grade.query.filter_by(" + args[:-1] + ").all()")
-    #
-    #     grades_schema = GradeSchema(many=True)
-    #     output = grades_schema.dump(grade)
-    #     return jsonify(output)
 
 
 class InterviewApi(MainResource):
@@ -228,15 +164,41 @@ class InterviewApi(MainResource):
         if form.get('add_question_id'):
             if Question.query.filter_by(id=int(form.get('add_question_id'))).first() not in interview.question_list:
                 interview.question_list.append(Question.query.filter_by(id=int(form.get('add_question_id'))).first())
+                for interviewer in interview.interviewers:
+                    db.session.add(Grade(
+                        question=Question.query.filter_by(id=int(form.get('add_question_id'))).first(),
+                        interviewer=interviewer,
+                        interview=interview
+                    ))
         if form.get('exclude_question_id'):
             if Question.query.filter_by(id=int(form.get('exclude_question_id'))).first() in interview.question_list:
+                for interviewer in interview.interviewers:
+                    grade = Grade.query.filter_by(
+                        question=Question.query.filter_by(id=int(form.get('exclude_question_id'))).first(),
+                        interviewer=interviewer,
+                        interview=interview
+                    ).first()
+                    db.session.delete(grade)
                 interview.question_list.remove(
                     Question.query.filter_by(id=int(form.get('exclude_question_id'))).first())
         if form.get('add_interviewer_id'):
             if User.query.filter_by(id=int(form.get('add_interviewer_id'))).first() not in interview.interviewers:
                 interview.interviewers.append(User.query.filter_by(id=int(form.get('add_interviewer_id'))).first())
+                for question in interview.question_list:
+                    db.session.add(Grade(
+                        question=question,
+                        interviewer=User.query.filter_by(id=int(form.get('add_interviewer_id'))).first(),
+                        interview=interview
+                    ))
         if form.get('exclude_interviewer_id'):
             if User.query.filter_by(id=int(form.get('exclude_interviewer_id'))).first() in interview.interviewers:
+                for question in interview.question_list:
+                    grade = Grade.query.filter_by(
+                        question=question,
+                        interviewer=User.query.filter_by(id=int(form.get('exclude_interviewer_id'))).first(),
+                        interview=interview
+                    ).first()
+                    db.session.delete(grade)
                 interview.interviewers.remove(User.query.filter_by(id=int(form.get('exclude_interviewer_id'))).first())
         return interview
 
@@ -245,52 +207,22 @@ class InterviewApi(MainResource):
 
     def create_object(self, form):
         interview = Interview()
+        if not form.get("candidate_name"):
+            raise Exception("no")
         interview = self.edit_object(interview, form)
+        if interview.question_list:
+            if interview.interviewers:
+                objects = []
+                for interviewer in interview.interviewers:
+                    for question in interview.question_list:
+                        grade = Grade(
+                            question=question,
+                            interviewer=interviewer,
+                            interview=interview
+                        )
+                        objects.append(grade)
+                db.session.add_all(objects)
         return interview
-
-    # def get(self):
-    #     args = request.args
-    #     interviews = self.get_interviews_query(args)
-    #     interviews_schema = InterviewSchema(many=True)
-    #     output = interviews_schema.dump(interviews)
-    #     return jsonify(output)
-    #
-    # def put(self):
-    #     form = request.args
-    #     interview = Interview()
-    #     interview = self.edit_interview(form=form, interview=interview)
-    #     db.session.add(interview)
-    #     db.session.commit()
-    #     return {'result': 'done'}
-    #
-    # def delete(self):
-    #     args = request.args
-    #     interview = self.get_interviews_query(args).first()
-    #     db.session.delete(interview)
-    #     db.session.commit()
-    #     return {'grade': 'deleted successful'}
-    #
-    # def patch(self):
-    #     args = request.args
-    #     interview = self.get_interviews_query(args=args).first()
-    #     form = request.form
-    #     interview = self.edit_interview(interview=interview, form=form)
-    #     interview_schema = InterviewSchema()
-    #     output = interview_schema.dump(interview)
-    #     db.session.commit()
-    #     return jsonify(output)
-    #
-    # def post(self):  # what should we do by POST method?
-    #     changes = request.form
-    #     print(changes)
-    #     args = ""
-    #     for key, value in request.args.items():
-    #         args += f"{key}={value},"
-    #     interview = eval("Interview.query.filter_by(" + args[:-1] + ").all()")
-    #
-    #     interviews_schema = InterviewSchema(many=True)
-    #     output = interviews_schema.dump(interview)
-    #     return jsonify(output)
 
 
 class QuestionApi(MainResource):
@@ -329,49 +261,6 @@ class QuestionApi(MainResource):
             raise Exception("no candidate name")
         question = self.edit_object(question, form)
         return question
-    # def get(self):
-    #     args = request.args
-    #     questions = self.get_question_query(args=args).all()
-    #     questions_schema = QuestionSchema(many=True)
-    #     output = questions_schema.dump(questions)
-    #     return jsonify(output)
-    #
-    # def put(self):
-    #     form = request.args
-    #     question = Question()
-    #     question = self.edit_question(question=question, form=form)
-    #     db.session.add(question)
-    #     db.session.commit()
-    #     return {'result': 'done'}
-    #
-    # def delete(self):
-    #     args = request.args
-    #     question = self.get_question_query(args=args).first()
-    #     db.session.delete(question)
-    #     db.session.commit()
-    #     return {'question': 'deleted successful'}
-    #
-    # def patch(self):
-    #     args = request.args
-    #     question = self.get_question_query(args=args).first()
-    #     form = request.form
-    #     question = self.edit_question(question=question, form=form)
-    #     question_shema = QuestionSchema()
-    #     output = question_shema.dump(question)
-    #     db.session.commit()
-    #     return jsonify(output)
-    #
-    # def post(self):  # what should we do by POST method?
-    #     changes = request.form
-    #     print(changes)
-    #     args = ""
-    #     for key, value in request.args.items():
-    #         args += f"{key}={value},"
-    #     questions = eval("Question.query.filter_by(" + args[:-1] + ").all()")
-    #
-    #     questions_schema = QuestionSchema(many=True)
-    #     output = questions_schema.dump(questions)
-    #     return jsonify(output)
 
 
 class LoginApi(Resource):
@@ -379,7 +268,6 @@ class LoginApi(Resource):
     def post(self):
         form = LoginForm(data=request.form)
         user = User.query.filter_by(username=form.username.data).first()
-        print(user)
         if User.query.filter_by(username=form.username.data).first():
             if user.get_password(form.password.data):
                 login_user(user)

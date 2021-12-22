@@ -18,9 +18,6 @@ login.init_app(app)
 ma = Marshmallow(app)
 api = Api(app)
 
-# api.add_resource(QuestionAPI, '/api/questions')
-
-
 from mainapp import routes, models, schema, api_routes, api_routes
 
 api.add_resource(api_routes.UserApi, '/api/user')

@@ -10,7 +10,7 @@ class UserForm(FlaskForm):
     username = StringField("Username", validators=[DataRequired()])
     email = StringField("Email")
     first_name = StringField("First Name")
-    last_name = StringField("Lask Name")
+    last_name = StringField("Last Name")
     password = PasswordField("Password", validators=[DataRequired()])
     is_admin = BooleanField("Admin status", default=False)
     submit = SubmitField("Add")

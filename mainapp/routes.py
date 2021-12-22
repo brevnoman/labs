@@ -6,9 +6,6 @@ from mainapp.forms import UserForm, QuestionForm, InterviewForm, GradeForm, Logi
 from mainapp.models import User, Question, Interview, Grade
 
 
-# from flask_login import current_user, login_user
-
-
 @app.route('/')
 @app.route('/users')
 @login_required
@@ -80,10 +77,10 @@ def add_interview():
             user = User.query.filter_by(id=interviewer_id).first()
             interviewers.append(user)
         interview = Interview(candidate_name=form.candidate_name.data,
-                            question_list=question_list,
-                            interviewers=interviewers,
-                            )
-        all = [interview]
+                              question_list=question_list,
+                              interviewers=interviewers,
+                              )
+        all_objects = [interview]
         for user in interviewers:
             for question in question_list:
                 grade = Grade(
@@ -91,8 +88,8 @@ def add_interview():
                     interviewer=user,
                     interview=interview
                 )
-                all.append(grade)
-        db.session.add_all(all)
+                all_objects.append(grade)
+        db.session.add_all(all_objects)
         db.session.commit()
         return redirect('/add-interview')
     return render_template('form.html', form=form)
