@@ -1,5 +1,5 @@
 from flask import jsonify, request
-from flask_login import login_user, login_required, logout_user
+from flask_login import login_user, login_required, logout_user, current_user
 from flask_restful import Resource
 
 from mainapp import db
@@ -29,10 +29,14 @@ class MainResource(Resource):
         schema = self.get_schema()
         model_schema = schema(many=True)
         output = model_schema.dump(model_objects)
+        if isinstance(model_schema()(), UserSchema) and not current_user.is_admin:
+            return {"error": "you are not admin"}
         return jsonify(output)
 
     @login_required
     def delete(self):
+        if isinstance(self.get_schema()(), UserSchema) and not current_user.is_admin:
+            return {"error": "you are not admin"}
         args = request.args
         model_object = self.get_model_query(args).first()
         db.session.delete(model_object)
@@ -41,17 +45,21 @@ class MainResource(Resource):
 
     @login_required
     def patch(self):
+        object_schema = self.get_schema()()
+        if isinstance(object_schema, UserSchema) and not current_user.is_admin:
+            return {"error": "you are not admin"}
         args = request.args
         model_object = self.get_model_query(args).first()
         form = request.form
         model_object = self.edit_object(model_object, form)
-        object_schema = self.get_schema()()
         output = object_schema.dump(model_object)
         db.session.commit()
         return jsonify(output)
 
     @login_required
     def post(self):
+        if isinstance(self.get_schema()(), UserSchema) and not current_user.is_admin:
+            return {"error": "you are not admin"}
         form = request.form
         model_object = self.create_object(form=form)
         db.session.add(model_object)
