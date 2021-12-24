@@ -1,5 +1,5 @@
 from flask import render_template, flash, redirect
-from flask_login import login_user, login_required, logout_user
+from flask_login import login_user, login_required, logout_user, current_user
 
 from mainapp import app, db, login
 from mainapp.forms import UserForm, QuestionForm, InterviewForm, GradeForm, LoginForm
@@ -124,6 +124,8 @@ def add_grade():
 
 @app.route("/login", methods=["GET", "POST"])
 def login_route():
+    if current_user.is_authenticated:
+        return redirect("/")
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()

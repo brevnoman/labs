@@ -24,13 +24,13 @@ class MainResource(Resource):
 
     @login_required
     def get(self):
-        args = request.args
-        model_objects = self.get_model_query(args=args).all()
         schema = self.get_schema()
         model_schema = schema(many=True)
-        output = model_schema.dump(model_objects)
         if isinstance(model_schema()(), UserSchema) and not current_user.is_admin:
             return {"error": "you are not admin"}
+        args = request.args
+        model_objects = self.get_model_query(args=args).all()
+        output = model_schema.dump(model_objects)
         return jsonify(output)
 
     @login_required
