@@ -75,7 +75,7 @@ class Interview(db.Model):
                                     backref=db.backref('interviews', lazy=True))
     interviewers = db.relationship('User', secondary=interview_user, lazy='subquery',
                                    backref=db.backref('interviews', lazy=True))
-    result_grade = db.Column(db.Float(precision=2))
+    result_grade = db.Column(db.Float(precision=2), default=0)
 
     def update_grade(self):
         self.result_grade = 0
@@ -107,6 +107,14 @@ class Grade(db.Model):
 
     def __repr__(self):
         return f"{self.interviewer} give {self.interview} {self.grade}, for {self.question}"
+
+    @db.validates("grade")
+    def validate_grade(self, key, value):
+        if value > self.question.max_grade:
+            return self.question.max_grade
+        if value < 0:
+            return 0
+        return value
 
 
 @login.user_loader
