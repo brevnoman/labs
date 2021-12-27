@@ -77,6 +77,11 @@ class Interview(db.Model):
                                    backref=db.backref('interviews', lazy=True))
     result_grade = db.Column(db.Float(precision=2))
 
+    def update_grade(self):
+        self.result_grade = 0
+        for grade in Grade.query.filter_by(interview_id=self.id):
+            self.result_grade += grade.grade
+
     def __repr__(self):
         return f"{self.candidate_name}"
 
@@ -92,12 +97,12 @@ class Grade(db.Model):
     __tablename__ = 'grades'
 
     id = db.Column(db.Integer, primary_key=True)
-    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
-    question = db.relationship("Question", backref="grades")
-    interviewer_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    interviewer = db.relationship("User", backref="grades")
-    interview_id = db.Column(db.Integer, db.ForeignKey('interviews.id'))
-    interview = db.relationship("Interview", backref="grades")
+    question_id = db.Column(db.Integer, db.ForeignKey('questions.id', ondelete="CASCADE"))
+    question = db.relationship("Question", backref=db.backref("grades", cascade="all,delete"))
+    interviewer_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"))
+    interviewer = db.relationship("User", backref=db.backref("grades", cascade="all,delete"))
+    interview_id = db.Column(db.Integer, db.ForeignKey('interviews.id', ondelete="CASCADE"))
+    interview = db.relationship("Interview", backref=db.backref("grades", cascade="all,delete"))
     grade = db.Column(db.Integer, default=0)
 
     def __repr__(self):

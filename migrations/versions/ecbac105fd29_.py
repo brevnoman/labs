@@ -1,16 +1,15 @@
 """empty message
 
-Revision ID: d2bebb910e6b
+Revision ID: ecbac105fd29
 Revises: 
-Create Date: 2021-12-17 02:37:29.293317
+Create Date: 2021-12-27 00:57:42.986492
 
 """
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = 'd2bebb910e6b'
+revision = 'ecbac105fd29'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -45,16 +44,16 @@ def upgrade():
     )
     op.create_index(op.f('ix_users_username'), 'users', ['username'], unique=True)
     op.create_table('grades',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('question_id', sa.Integer(), nullable=True),
-    sa.Column('interviewer_id', sa.Integer(), nullable=True),
-    sa.Column('interview_id', sa.Integer(), nullable=True),
-    sa.Column('grade', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['interview_id'], ['interviews.id'], ),
-    sa.ForeignKeyConstraint(['interviewer_id'], ['users.id'], ),
-    sa.ForeignKeyConstraint(['question_id'], ['questions.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
+                    sa.Column('id', sa.Integer(), nullable=False),
+                    sa.Column('question_id', sa.Integer(), nullable=True),
+                    sa.Column('interviewer_id', sa.Integer(), nullable=True),
+                    sa.Column('interview_id', sa.Integer(), nullable=True),
+                    sa.Column('grade', sa.Integer(), nullable=True),
+                    sa.ForeignKeyConstraint(['interview_id'], ['interviews.id'], ondelete='CASCADE'),
+                    sa.ForeignKeyConstraint(['interviewer_id'], ['users.id'], ondelete='CASCADE'),
+                    sa.ForeignKeyConstraint(['question_id'], ['questions.id'], ondelete='CASCADE'),
+                    sa.PrimaryKeyConstraint('id')
+                    )
     op.create_table('interview_question',
     sa.Column('question_id', sa.Integer(), nullable=False),
     sa.Column('interview_id', sa.Integer(), nullable=False),

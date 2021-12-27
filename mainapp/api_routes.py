@@ -26,7 +26,7 @@ class MainResource(Resource):
     def get(self):
         schema = self.get_schema()
         model_schema = schema(many=True)
-        if isinstance(model_schema()(), UserSchema) and not current_user.is_admin:
+        if isinstance(model_schema, UserSchema) and not current_user.is_admin:
             return {"error": "you are not admin"}
         args = request.args
         model_objects = self.get_model_query(args=args).all()
@@ -92,6 +92,11 @@ class UserApi(MainResource):
             user.first_name = form.get('first_name')
         if form.get("last_name"):
             user.last_name = form.get('last_name')
+        if form.get("is_admin"):
+            if form.get("is_admin") == "True":
+                user.is_admin = True
+            elif form.get("is_admin") == "False":
+                user.is_admin = False
         return user
 
     def create_object(self, form):

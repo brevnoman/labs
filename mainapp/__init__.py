@@ -9,8 +9,6 @@ from flask_sqlalchemy import SQLAlchemy
 
 from mainapp.config import Config
 
-# from mainapp.api_routes import QuestionAPI
-
 app = Flask(__name__)
 app.config.from_object(Config)
 db = SQLAlchemy(app)
@@ -24,15 +22,20 @@ admin = Admin(app, name='interview', template_mode='bootstrap3')
 
 from mainapp import routes, models, schema, api_routes, api_routes
 
+if not models.User.query.filter_by(is_admin=True).all():
+    user = models.User(username="admin", is_admin=True)
+    user.set_password("admin")
+    db.session.add(user)
+    db.session.commit()
+
 
 class AdminModelView(sqla.ModelView):
+    page_size = 50
 
     def is_accessible(self):
-        return current_user.is_admin
-
-    def inaccessible_callback(self, name, **kwargs):
-        # redirect to login page if user doesn't have access
-        return {"error": "you aren't admin"}
+        if current_user.is_authenticated:
+            return current_user.is_admin
+        return current_user.is_authenticated
 
 
 class UserModelView(AdminModelView):

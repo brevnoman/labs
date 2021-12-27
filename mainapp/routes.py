@@ -105,7 +105,7 @@ def grades():
 @app.route('/add-grade', methods=["POST", "GET"])
 @login_required
 def add_grade():
-    form = GradeForm()
+    form = GradeForm().new()
     if form.validate_on_submit():
         user = User.query.filter_by(id=form.interviewers.data).first()
         question = Question.query.filter_by(id=form.question_list.data).first()
