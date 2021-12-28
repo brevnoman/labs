@@ -41,23 +41,50 @@ def create_grades_from_question(target, value, initiator):
 
 def create_grades_from_user(target, value, initiator):
     db.session.flush()
-    for question in target.question_list:
-        if not Grade.query.filter_by(
-                question=question,
-                interviewer=value,
-                interview=target
-        ).first():
-            grade = Grade(
-                question=question,
-                interviewer=value,
-                interview_id=target.id
-            )
-            db.session.add(grade)
+    print(target)
+    print(Interview.query.filter_by(id=target.id).first())
+    if Interview.query.filter_by(id=target.id).first():
+        for question in target.question_list:
+            if not Grade.query.filter_by(
+                    question=question,
+                    interviewer=value,
+                    interview=target
+            ).first():
+                grade = Grade(
+                    question=question,
+                    interviewer=value,
+                    interview_id=target.id
+                )
+                db.session.add(grade)
+
+
+def create_grades_when_create(mapper, connection, target):
+    print(target)
+    print(mapper)
+    print(connection)
+    for interviewer in target.interviewers:
+        for question in target.question_list:
+            if not Grade.query.filter_by(
+                    question=question,
+                    interviewer=interviewer,
+                    interview_id=target.id
+            ).first():
+                grade = Grade(
+                    question=question,
+                    interviewer=interviewer,
+                    interview_id=target.id
+                )
+                db.session.add(grade)
 
 
 event.listen(inspect(Grade).column_attrs['grade'], "set", update_grade)
-# event.listen(inspect(Grade).column_attrs['grade'], "set", update_grade)
-event.listen(inspect(Interview).relationships["interviewers"], 'append', create_grades_from_user)
-event.listen(inspect(Interview).relationships["question_list"], "append", create_grades_from_question)
-# event.listen(inspect(Interview).relationships["interviewers"], 'remove', )
+with db.session.no_autoflush:
+    event.listen(inspect(Interview).relationships["interviewers"], 'append', create_grades_from_user)
+    event.listen(inspect(Interview).relationships["question_list"], "append", create_grades_from_question)
+event.listen(Interview, "after_insert", create_grades_when_create)
+event.listen(inspect(Interview).relationships["interviewers"], 'remove', remove_grade_user)
 event.listen(inspect(Interview).relationships["question_list"], "remove", remove_grade_question)
+
+"""
+some problems with events, if i check for append it cause error in object creation
+"""
