@@ -178,42 +178,16 @@ class InterviewApi(MainResource):
             if Question.query.filter_by(id=int(form.get('add_question_id'))).first() not in interview.question_list:
                 question = Question.query.filter_by(id=int(form.get('add_question_id'))).first()
                 interview.question_list.append(question)
-                # for interviewer in interview.interviewers:
-                #     db.session.add(Grade(
-                #         question=Question.query.filter_by(id=int(form.get('add_question_id'))).first(),
-                #         interviewer=interviewer,
-                #         interview=interview
-                #     ))
         if form.get('exclude_question_id'):
             if Question.query.filter_by(id=int(form.get('exclude_question_id'))).first() in interview.question_list:
-                # for interviewer in interview.interviewers:
-                # grade = Grade.query.filter_by(
-                #     question=Question.query.filter_by(id=int(form.get('exclude_question_id'))).first(),
-                #     interviewer=interviewer,
-                #     interview=interview
-                # ).first()
-                # db.session.delete(grade)
                 question = Question.query.filter_by(id=int(form.get('exclude_question_id'))).first()
                 interview.question_list.remove(question)
         if form.get('add_interviewer_id'):
             if User.query.filter_by(id=int(form.get('add_interviewer_id'))).first() not in interview.interviewers:
                 interviewer = User.query.filter_by(id=int(form.get('add_interviewer_id'))).first()
                 interview.interviewers.append(interviewer)
-                # for question in interview.question_list:
-                #     db.session.add(Grade(
-                #         question=question,
-                #         interviewer=User.query.filter_by(id=int(form.get('add_interviewer_id'))).first(),
-                #         interview=interview
-                #     ))
         if form.get('exclude_interviewer_id'):
             if User.query.filter_by(id=int(form.get('exclude_interviewer_id'))).first() in interview.interviewers:
-                # for question in interview.question_list:
-                #     grade = Grade.query.filter_by(
-                #         question=question,
-                #         interviewer=User.query.filter_by(id=int(form.get('exclude_interviewer_id'))).first(),
-                #         interview=interview
-                #     ).first()
-                #     db.session.delete(grade)
                 interviewer = User.query.filter_by(id=int(form.get('exclude_interviewer_id'))).first()
                 interview.interviewers.remove(interviewer)
         return interview
@@ -226,18 +200,6 @@ class InterviewApi(MainResource):
         if not form.get("candidate_name"):
             raise Exception("no")
         interview = self.edit_object(interview, form)
-        if interview.question_list:
-            if interview.interviewers:
-                objects = []
-                for interviewer in interview.interviewers:
-                    for question in interview.question_list:
-                        grade = Grade(
-                            question=question,
-                            interviewer=interviewer,
-                            interview=interview
-                        )
-                        objects.append(grade)
-                db.session.add_all(objects)
         return interview
 
 

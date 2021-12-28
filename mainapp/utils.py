@@ -41,8 +41,6 @@ def create_grades_from_question(target, value, initiator):
 
 def create_grades_from_user(target, value, initiator):
     db.session.flush()
-    print(target)
-    print(Interview.query.filter_by(id=target.id).first())
     if Interview.query.filter_by(id=target.id).first():
         for question in target.question_list:
             if not Grade.query.filter_by(
@@ -59,9 +57,6 @@ def create_grades_from_user(target, value, initiator):
 
 
 def create_grades_when_create(mapper, connection, target):
-    print(target)
-    print(mapper)
-    print(connection)
     for interviewer in target.interviewers:
         for question in target.question_list:
             if not Grade.query.filter_by(

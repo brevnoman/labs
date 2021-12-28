@@ -80,16 +80,7 @@ def add_interview():
                               question_list=question_list,
                               interviewers=interviewers,
                               )
-        all_objects = [interview]
-        for user in interviewers:
-            for question in question_list:
-                grade = Grade(
-                    question=question,
-                    interviewer=user,
-                    interview=interview
-                )
-                all_objects.append(grade)
-        db.session.add_all(all_objects)
+        db.session.add(interview)
         db.session.commit()
         return redirect('/add-interview')
     return render_template('form.html', form=form)
