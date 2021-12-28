@@ -20,7 +20,7 @@ api = Api(app)
 app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
 admin = Admin(app, name='interview', template_mode='bootstrap3')
 
-from mainapp import routes, models, schema, api_routes, api_routes
+from mainapp import routes, models, schema, api_routes, api_routes, utils
 
 if not models.User.query.filter_by(is_admin=True).all():
     user = models.User(username="admin", is_admin=True)
