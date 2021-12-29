@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect
 from flask_login import login_user, login_required, logout_user, current_user
 
-from mainapp import app, db, login
+from mainapp import app, db
 from mainapp.forms import UserForm, QuestionForm, InterviewForm, GradeForm, LoginForm
 from mainapp.models import User, Question, Interview, Grade
 
@@ -137,7 +137,3 @@ def logout_route():
     logout_user()
     return redirect('/login')
 
-
-@login.unauthorized_handler
-def unauthorized_callback():
-    return redirect('/login')

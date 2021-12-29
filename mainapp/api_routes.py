@@ -2,7 +2,7 @@ from flask import jsonify, request
 from flask_login import login_user, login_required, logout_user, current_user
 from flask_restful import Resource
 
-from mainapp import db
+from mainapp import db, api
 from mainapp.forms import LoginForm
 from mainapp.models import User, Grade, Interview, Question
 from mainapp.schema import UserSchema, GradeSchema, InterviewSchema, QuestionSchema
@@ -62,6 +62,8 @@ class MainResource(Resource):
             return {"error": "you are not admin"}
         form = request.form
         model_object = self.create_object(form=form)
+        if isinstance(model_object, dict):
+            return model_object
         db.session.add(model_object)
         db.session.commit()
         return {'result': 'done'}
@@ -102,7 +104,7 @@ class UserApi(MainResource):
     def create_object(self, form):
         user = User()
         if not form.get("username") or not form.get("password"):
-            raise Exception("no username or password")
+            return {"error": "no username and/or password"}
         user = self.edit_object(user, form)
         return user
 
@@ -210,7 +212,7 @@ class InterviewApi(MainResource):
     def create_object(self, form):
         interview = Interview()
         if not form.get('candidate_name'):
-            raise {"error": "no candidate_name"}
+            return {"error": "no candidate_name"}
         interview = self.edit_object(interview, form)
         return interview
 
@@ -270,3 +272,11 @@ class LogoutApi(Resource):
     def post(self):
         logout_user()
         return {"logout": "success"}
+
+
+api.add_resource(UserApi, '/api/user')
+api.add_resource(GradesApi, '/api/grade')
+api.add_resource(QuestionApi, '/api/question')
+api.add_resource(InterviewApi, '/api/interview')
+api.add_resource(LoginApi, '/api/login')
+api.add_resource(LogoutApi, '/api/logout')
