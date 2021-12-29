@@ -79,7 +79,3 @@ with db.session.no_autoflush:
 event.listen(Interview, "after_insert", create_grades_when_create)
 event.listen(inspect(Interview).relationships["interviewers"], 'remove', remove_grade_user)
 event.listen(inspect(Interview).relationships["question_list"], "remove", remove_grade_question)
-
-"""
-some problems with events, if i check for append it cause error in object creation
-"""

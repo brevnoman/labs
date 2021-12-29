@@ -144,7 +144,7 @@ class GradesApi(MainResource):
     def create_object(self, form):
         grade = Grade()
         if not form.get("interview_id") or not form.get("interviewer_id") or not form.get("question_id"):
-            raise Exception("no")
+            return {"error": "interview_id, interviewer_id or question_id absent"}
         grade = self.edit_object(grade=grade, form=form)
         return grade
 
@@ -209,8 +209,8 @@ class InterviewApi(MainResource):
 
     def create_object(self, form):
         interview = Interview()
-        if not form.get("candidate_name"):
-            raise Exception("no")
+        if not form.get('candidate_name'):
+            raise {"error": "no candidate_name"}
         interview = self.edit_object(interview, form)
         return interview
 
@@ -247,8 +247,6 @@ class QuestionApi(MainResource):
 
     def create_object(self, form):
         question = Question()
-        if not form.get('candidate_name'):
-            raise Exception("no candidate name")
         question = self.edit_object(question, form)
         return question
 
