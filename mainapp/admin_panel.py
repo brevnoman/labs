@@ -7,11 +7,6 @@ from mainapp.models import User, Question, Interview, Grade
 
 class AdminModelView(sqla.ModelView):
     page_size = 50
-    form_args = {
-        "password_hash": {
-            "label": "Password",
-        }
-    }
 
     def is_accessible(self):
         if current_user.is_authenticated:

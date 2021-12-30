@@ -11,7 +11,7 @@ class UserForm(FlaskForm):
     email = StringField("Email")
     first_name = StringField("First Name")
     last_name = StringField("Last Name")
-    password = PasswordField("Password", validators=[DataRequired()])
+    password_hash = PasswordField("Password", validators=[DataRequired()])
     is_admin = BooleanField("Admin status", default=False)
     submit = SubmitField("Add")
 
