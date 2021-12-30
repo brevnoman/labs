@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, redirect
 from flask_admin import Admin
 from flask_login import LoginManager
 from flask_marshmallow import Marshmallow
@@ -17,15 +17,16 @@ login.init_app(app)
 ma = Marshmallow(app)
 api = Api(app)
 app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
-admin = Admin(app, name='interview', template_mode='bootstrap3')
+admin = Admin(app, name='Interview', template_mode='bootstrap3')
 
 
 @login.unauthorized_handler
 def unauthorized_callback():
-    return {"error": "you need to login first"}
+    return redirect("/login")
 
 
-from mainapp import utils, routes, models, schema, api_routes, api_routes, admin
+from mainapp import utils, routes, models, schema, api_routes, api_routes
+from mainapp import admin_panel
 
 if not models.User.query.filter_by(is_admin=True).all():
     user = models.User(username="admin", is_admin=True)

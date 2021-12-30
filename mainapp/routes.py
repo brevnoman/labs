@@ -7,6 +7,11 @@ from mainapp.models import User, Question, Interview, Grade
 
 
 @app.route('/')
+@login_required
+def main_page():
+    return redirect("/admin")
+
+
 @app.route('/users')
 @login_required
 def a():

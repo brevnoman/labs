@@ -52,7 +52,7 @@ class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     question_description = db.Column(db.Text)
     answer = db.Column(db.String(64))
-    max_grade = db.Column(db.Integer)
+    max_grade = db.Column(db.Integer, default=10)
     short_description = db.Column(db.String(128))
 
     def __repr__(self):

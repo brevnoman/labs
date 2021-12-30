@@ -129,7 +129,6 @@ class GradesApi(MainResource):
         return grades
 
     def edit_object(self, grade, form):
-        grade = grade.first()
         if form.get("question_id"):
             grade.question_id = form.get('question_id')
         if form.get('interviewer_id'):
@@ -169,6 +168,7 @@ class InterviewApi(MainResource):
 
     def edit_object(self, interview, form):
         if form.get("candidate_name"):
+            print(form.get("candidate_name"))
             interview.candidate_name = form.get('candidate_name')
         if form.get('result_grade'):
             interview.result_grade = form.get('result_grade')
@@ -182,12 +182,24 @@ class InterviewApi(MainResource):
                 if Question.query.filter_by(id=int(question_id)).first():
                     question = Question.query.filter_by(id=int(question_id)).first()
                     interview.question_list.append(question)
+        if form.get("exclude_questions_row_id"):
+            questions_id = form.get("exclude_questions_row_id").split(",")
+            for question_id in questions_id:
+                if Question.query.filter_by(id=int(question_id)).first():
+                    question = Question.query.filter_by(id=int(question_id)).first()
+                    interview.question_list.remove(question)
         if form.get("add_interviewers_row_id"):
             interviewers_id = form.get("add_interviewers_row_id").split(",")
             for interviewer_id in interviewers_id:
                 if User.query.filter_by(id=int(interviewer_id)).first():
                     interviewer = User.query.filter_by(id=int(interviewer_id)).first()
                     interview.interviewers.append(interviewer)
+        if form.get("exclude_interviewers_row_id"):
+            interviewers_id = form.get("exclude_interviewers_row_id").split(",")
+            for interviewer_id in interviewers_id:
+                if User.query.filter_by(id=int(interviewer_id)).first():
+                    interviewer = User.query.filter_by(id=int(interviewer_id)).first()
+                    interview.interviewers.remove(interviewer)
         if form.get('add_question_id'):
             if Question.query.filter_by(id=int(form.get('add_question_id'))).first() not in interview.question_list:
                 question = Question.query.filter_by(id=int(form.get('add_question_id'))).first()
